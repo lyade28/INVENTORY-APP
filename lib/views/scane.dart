@@ -1,11 +1,10 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:barcode_scan2/barcode_scan2.dart';
 import 'package:file_picker/file_picker.dart';
 
 import '../models/scan_entry.dart';
-import '../models/parsed_site.dart';
+import '../models/parsed_site.dart'; // Contient ParsedSite et ParsedLocalisation
 import '../services/local_storage_service.dart';
 import '../services/site_loader_service.dart';
 
@@ -162,6 +161,18 @@ class _ScanPageState extends State<ScanPage> {
                       itemCount: scans.length,
                       itemBuilder: (context, index) {
                         final e = scans[index];
+                        final matchingSite = parsedSites.firstWhere(
+                          (site) => site.code == e.siteCode,
+                          orElse: () => ParsedSite(
+                            code: e.siteCode,
+                            name: '',
+                            age: '',
+                            localisations: [],
+                          ),
+                        );
+
+                        final age = matchingSite.age;
+
                         final locShort = e.localisationCode.length > 10
                             ? e.localisationCode.substring(0, 10)
                             : e.localisationCode;
@@ -169,8 +180,8 @@ class _ScanPageState extends State<ScanPage> {
                         return ListTile(
                           leading: const Icon(Icons.qr_code),
                           title: Text(e.barcode),
-                          subtitle:
-                              Text("${e.barcode} - $locShort - ${e.siteCode}"),
+                          subtitle: Text(
+                              "${e.barcode.length > 1 ? e.barcode.substring(0, e.barcode.length - 1) : e.barcode} - $locShort - $age"),
                         );
                       },
                     ),

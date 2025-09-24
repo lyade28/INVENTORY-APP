@@ -1,11 +1,13 @@
 class ParsedSite {
   final String code;
   final String name;
+  final String age;
   final List<ParsedLocalisation> localisations;
 
   ParsedSite({
     required this.code,
     required this.name,
+    required this.age,
     required this.localisations,
   });
 
@@ -13,8 +15,9 @@ class ParsedSite {
     return ParsedSite(
       code: json['codeSite'],
       name: json['intSite'],
+      age: json['age'].toString(),
       localisations: (json['localisations'] as List)
-          .map((l) => ParsedLocalisation.fromJson(l))
+          .map((e) => ParsedLocalisation.fromJson(e))
           .toList(),
     );
   }
