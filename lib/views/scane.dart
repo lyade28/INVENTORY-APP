@@ -1,5 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:barcode_scan2/barcode_scan2.dart';
+import 'package:file_picker/file_picker.dart';
+
 import '../models/scan_entry.dart';
 import '../models/parsed_site.dart';
 import '../services/local_storage_service.dart';
@@ -30,11 +34,42 @@ class _ScanPageState extends State<ScanPage> {
   }
 
   Future<void> _loadSitesFromJson() async {
-    final data = await SiteLoaderService.loadSitesFromAsset();
-    setState(() {
-      parsedSites = data;
-      isLoading = false;
-    });
+    try {
+      final data = await SiteLoaderService.loadFromAsset();
+      setState(() {
+        parsedSites = data;
+        isLoading = false;
+      });
+    } catch (e) {
+      debugPrint("Erreur chargement asset JSON : $e");
+    }
+  }
+
+  Future<void> _loadFromFilePicker() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['json'],
+    );
+
+    if (result != null && result.files.single.path != null) {
+      final file = File(result.files.single.path!);
+      try {
+        final parsed = await SiteLoaderService.loadFromFile(file);
+        setState(() {
+          parsedSites = parsed;
+          selectedSite = null;
+          selectedLocalisation = null;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Fichier JSON chargé avec succès")),
+        );
+      } catch (e) {
+        debugPrint("Erreur de parsing JSON : $e");
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Fichier invalide")),
+        );
+      }
+    }
   }
 
   Future<void> scanCode() async {
@@ -77,6 +112,12 @@ class _ScanPageState extends State<ScanPage> {
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
+                  ElevatedButton.icon(
+                    onPressed: _loadFromFilePicker,
+                    icon: const Icon(Icons.folder_open),
+                    label: const Text("Charger un fichier JSON"),
+                  ),
+                  const SizedBox(height: 16),
                   DropdownButtonFormField<ParsedSite>(
                     decoration: const InputDecoration(
                       labelText: "Choisir un site",
