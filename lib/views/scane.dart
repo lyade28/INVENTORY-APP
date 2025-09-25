@@ -4,7 +4,7 @@ import 'package:barcode_scan2/barcode_scan2.dart';
 import 'package:file_picker/file_picker.dart';
 
 import '../models/scan_entry.dart';
-import '../models/parsed_site.dart'; // Contient ParsedSite et ParsedLocalisation
+import '../models/parsed_site.dart';
 import '../services/local_storage_service.dart';
 import '../services/site_loader_service.dart';
 
@@ -19,12 +19,13 @@ class ScanPage extends StatefulWidget {
 
 class _ScanPageState extends State<ScanPage> {
   List<ScanEntry> scans = [];
-
   List<ParsedSite> parsedSites = [];
+
   ParsedSite? selectedSite;
   ParsedLocalisation? selectedLocalisation;
 
   bool isLoading = true;
+  final Color primaryColor = const Color(0xFF1E2A38); // bleu foncé
 
   @override
   void initState() {
@@ -104,7 +105,12 @@ class _ScanPageState extends State<ScanPage> {
         selectedSite?.localisations ?? [];
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Scanner")),
+      backgroundColor: const Color(0xFFF3F4F6),
+      appBar: AppBar(
+        backgroundColor: primaryColor,
+        title: const Text("Scanner", style: TextStyle(color: Colors.white)),
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : Padding(
@@ -115,12 +121,21 @@ class _ScanPageState extends State<ScanPage> {
                     onPressed: _loadFromFilePicker,
                     icon: const Icon(Icons.folder_open),
                     label: const Text("Charger un fichier JSON"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey[200],
+                      foregroundColor: primaryColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<ParsedSite>(
                     decoration: const InputDecoration(
                       labelText: "Choisir un site",
                       border: OutlineInputBorder(),
+                      filled: true,
+                      fillColor: Colors.white,
                     ),
                     value: selectedSite,
                     items: parsedSites
@@ -139,6 +154,8 @@ class _ScanPageState extends State<ScanPage> {
                     decoration: const InputDecoration(
                       labelText: "Choisir une localisation",
                       border: OutlineInputBorder(),
+                      filled: true,
+                      fillColor: Colors.white,
                     ),
                     value: selectedLocalisation,
                     items: filteredLocs
@@ -149,42 +166,78 @@ class _ScanPageState extends State<ScanPage> {
                         .toList(),
                     onChanged: (l) => setState(() => selectedLocalisation = l),
                   ),
-                  const SizedBox(height: 16),
-                  ElevatedButton.icon(
-                    onPressed: scanCode,
-                    icon: const Icon(Icons.qr_code_scanner),
-                    label: const Text("Scanner"),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton.icon(
+                      onPressed: scanCode,
+                      icon: const Icon(Icons.qr_code_scanner),
+                      label: const Text("Scanner un code"),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryColor,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 16),
                   Expanded(
-                    child: ListView.builder(
-                      itemCount: scans.length,
-                      itemBuilder: (context, index) {
-                        final e = scans[index];
-                        final matchingSite = parsedSites.firstWhere(
-                          (site) => site.code == e.siteCode,
-                          orElse: () => ParsedSite(
-                            code: e.siteCode,
-                            name: '',
-                            age: '',
-                            localisations: [],
+                    child: scans.isEmpty
+                        ? const Center(
+                            child: Text("Aucun scan pour le moment."),
+                          )
+                        : ListView.builder(
+                            itemCount: scans.length,
+                            itemBuilder: (context, index) {
+                              final e = scans[index];
+                              final site = parsedSites.firstWhere(
+                                (s) => s.code == e.siteCode,
+                                orElse: () => ParsedSite(
+                                  code: '',
+                                  name: '',
+                                  age: '',
+                                  localisations: [],
+                                ),
+                              );
+
+                              final age = site.age;
+                              final barcodeShort = e.barcode.length > 1
+                                  ? e.barcode.substring(0, e.barcode.length - 1)
+                                  : e.barcode;
+
+                              final locShort = e.localisationCode.length > 10
+                                  ? e.localisationCode.substring(0, 10)
+                                  : e.localisationCode;
+
+                              return Card(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                elevation: 3,
+                                margin: const EdgeInsets.only(bottom: 12),
+                                child: ListTile(
+                                  leading: CircleAvatar(
+                                    backgroundColor:
+                                        primaryColor.withOpacity(0.1),
+                                    child: const Icon(Icons.qr_code,
+                                        color: Colors.black87),
+                                  ),
+                                  title: Text(
+                                    barcodeShort,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  subtitle: Text("$locShort - $age",
+                                      style:
+                                          const TextStyle(color: Colors.grey)),
+                                ),
+                              );
+                            },
                           ),
-                        );
-
-                        final age = matchingSite.age;
-
-                        final locShort = e.localisationCode.length > 10
-                            ? e.localisationCode.substring(0, 10)
-                            : e.localisationCode;
-
-                        return ListTile(
-                          leading: const Icon(Icons.qr_code),
-                          title: Text(e.barcode),
-                          subtitle: Text(
-                              "${e.barcode.length > 1 ? e.barcode.substring(0, e.barcode.length - 1) : e.barcode} - $locShort - $age"),
-                        );
-                      },
-                    ),
                   ),
                 ],
               ),

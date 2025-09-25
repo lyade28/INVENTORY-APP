@@ -5,7 +5,7 @@ import '../models/scan_entry.dart';
 
 class LocalStorageService {
   static const _sessionsKey = 'inventaire_sessions';
-
+  
   static Future<List<InventaireSession>> getSessions() async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(_sessionsKey);
