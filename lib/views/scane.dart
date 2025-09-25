@@ -25,7 +25,7 @@ class _ScanPageState extends State<ScanPage> {
   ParsedLocalisation? selectedLocalisation;
 
   bool isLoading = true;
-  final Color primaryColor = const Color(0xFF1E2A38); // bleu foncé
+  final Color primaryColor = const  Color(0xFF034A80); 
 
   @override
   void initState() {

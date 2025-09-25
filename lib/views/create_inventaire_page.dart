@@ -13,7 +13,7 @@ class CreateInventairePage extends StatefulWidget {
 
 class _CreateInventairePageState extends State<CreateInventairePage> {
   final TextEditingController nameController = TextEditingController();
-  final Color primaryColor = const Color(0xFF1E2A38); // Bleu sombre
+  final Color primaryColor = const Color(0xFF034A80); // Bleu sombre
 
   Future<void> createSession() async {
     final name = nameController.text.trim();

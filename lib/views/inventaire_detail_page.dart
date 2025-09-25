@@ -14,7 +14,7 @@ class InventaireDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color primaryColor = const Color(0xFF1E2A38); // Bleu foncé
+    final Color primaryColor = const  Color(0xFF034A80); // Bleu foncé
 
     return Scaffold(
       backgroundColor: const Color(0xFFF3F4F6),

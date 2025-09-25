@@ -23,7 +23,7 @@ class _HomePageState extends State<HomePage> {
   List<InventaireSession> sessions = [];
   List<ParsedSite> parsedSites = [];
 
-  final Color primaryColor = const Color(0xFF1E2A38); // Bleu sombre
+  final Color primaryColor = const Color(0xFF034A80); // Bleu sombre
   final Color backgroundColor = const Color(0xFFF3F4F6);
 
   @override
