@@ -54,7 +54,14 @@ dev_dependencies:
   path_provider: ^2.1.2
   share_plus: ^7.2.1
   permission_handler: ^11.3.0
-  file_picker: ^6.1.1
+  file_picker: ^8.1.2
+
+
+analyzer:
+  exclude:
+    - linux/**
+    - macos/**
+    - windows/**
 
 
 # For information on the generic Dart part of this file, see the
